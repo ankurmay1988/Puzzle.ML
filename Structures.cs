@@ -8,7 +8,7 @@ public struct PieceData
     public int VariationIndex;
     public int Width;
     public int Height;
-    public int[] Data;
+    public byte[] Data;
 }
 
 public struct Piece
@@ -28,7 +28,7 @@ public struct PuzzleData
     public List<Piece> Pieces = [];
     public int BoardWidth = Constants.Board.GetLength(1);
     public int BoardHeight = Constants.Board.GetLength(0);
-    public int[] BoardData;
+    public byte[] BoardData;
     public int NumVariations = 4;
     private readonly DateOnly dateOnly;
 
@@ -57,7 +57,7 @@ public struct PuzzleData
         foreach (var pos in fixedPos)
             board[pos[0], pos[1]] = 1;
 
-        List<NDarray<int>> pieces = [
+        List<NDarray<byte>> pieces = [
             np.array(Constants.Piece1),
             np.array(Constants.Piece2),
             np.array(Constants.Piece3),
@@ -68,7 +68,7 @@ public struct PuzzleData
             np.array(Constants.Piece8),
         ];
 
-        IEnumerable<NDarray> PieceVariations(NDarray piece)
+        IEnumerable<NDarray> PieceVariations(NDarray<byte> piece)
         {
             yield return piece;
             var p = np.rot90(piece, 1)!;
@@ -88,7 +88,7 @@ public struct PuzzleData
 
             foreach (var (v, vidx) in PieceVariations(piece).Select((item, idx) => (item, idx)))
             {
-                var data = v.GetData<int>();
+                var data = v.GetData<byte>();
                 var pData = new PieceData()
                 {
                     Data = data,
@@ -104,7 +104,7 @@ public struct PuzzleData
         }
     }
 
-    public static int[] NewBoard
+    public static byte[] NewBoard
     {
         get
         {
@@ -112,11 +112,11 @@ public struct PuzzleData
         }
     }
 
-    public readonly int[,] BoardDataArray
+    public readonly byte[,] BoardDataArray
     {
         get
         {
-            var s = new Span2D<int>(BoardData, BoardHeight, BoardWidth);
+            var s = new Span2D<byte>(BoardData, BoardHeight, BoardWidth);
             return s.ToArray();
         }
     }

@@ -7,9 +7,9 @@ namespace Puzzle.ML;
 public struct HostPuzzleCases : IDisposable
 {
     private readonly Accelerator accelerator;
-    public MemoryBuffer2D<int, Stride2D.DenseX> ShuffleCases;
-    public MemoryBuffer2D<int, Stride2D.DenseX> VariationCases;
-    public HostPuzzleCases(Accelerator accelerator, PuzzleData puzzle, int[,]? shuffleCases = null, int[,]? variationCases = null)
+    public MemoryBuffer2D<byte, Stride2D.DenseX> ShuffleCases;
+    public MemoryBuffer2D<byte, Stride2D.DenseX> VariationCases;
+    public HostPuzzleCases(Accelerator accelerator, PuzzleData puzzle, byte[,]? shuffleCases = null, byte[,]? variationCases = null)
     {
         this.accelerator = accelerator;
         ShuffleCases = default!;
@@ -17,12 +17,12 @@ public struct HostPuzzleCases : IDisposable
         Initialize(puzzle, shuffleCases, variationCases);
     }
 
-    private void Initialize(PuzzleData puzzle, int[,]? shuffled, int[,]? variations)
+    private void Initialize(PuzzleData puzzle, byte[,]? shuffled, byte[,]? variations)
     {
         if (shuffled == null)
         {
-            var cases_Perm = new Permutations<int>(Enumerable.Range(0, puzzle.Pieces.Count)).ToList();
-            var arrShuffleCases = new int[cases_Perm.Count, puzzle.Pieces.Count];
+            var cases_Perm = new Permutations<byte>(Enumerable.Range(0, puzzle.Pieces.Count).Select(x => (byte)x)).ToList();
+            var arrShuffleCases = new byte[cases_Perm.Count, puzzle.Pieces.Count];
             var casesIdx = Enumerable.Range(0, cases_Perm.Count).SelectMany(i => Enumerable.Range(0, puzzle.Pieces.Count).Select(j => (i, j)));
 
             Parallel.ForEach(casesIdx, idx =>
@@ -39,8 +39,8 @@ public struct HostPuzzleCases : IDisposable
 
         if (variations == null)
         {
-            var variationCases = new Variations<int>(Enumerable.Range(0, puzzle.NumVariations), puzzle.Pieces.Count, GenerateOption.WithRepetition).ToList();
-            var arrVariationCases = new int[variationCases.Count, puzzle.Pieces.Count];
+            var variationCases = new Variations<byte>(Enumerable.Range(0, puzzle.NumVariations).Select(x => (byte)x), puzzle.Pieces.Count, GenerateOption.WithRepetition).ToList();
+            var arrVariationCases = new byte[variationCases.Count, puzzle.Pieces.Count];
             var variationIdx = Enumerable.Range(0, variationCases.Count).SelectMany(i => Enumerable.Range(0, puzzle.Pieces.Count).Select(j => (i, j)));
 
             Parallel.ForEach(variationIdx, idx =>
@@ -72,6 +72,6 @@ public struct HostPuzzleCases : IDisposable
 public struct DevicePuzzleCases
 {
     // (Index, VariationIndex, Pieces)
-    public ArrayView2D<int, Stride2D.DenseX> ShuffleCases;
-    public ArrayView2D<int, Stride2D.DenseX> VariationCases;
+    public ArrayView2D<byte, Stride2D.DenseX> ShuffleCases;
+    public ArrayView2D<byte, Stride2D.DenseX> VariationCases;
 }

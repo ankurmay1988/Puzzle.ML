@@ -9,9 +9,9 @@ namespace Puzzle.ML;
 public class HostPuzzleData : IDisposable
 {
     public int NumPieces;
-    public MemoryBuffer3D<int, Stride3D.DenseXY> PieceData;
+    public MemoryBuffer3D<byte, Stride3D.DenseXY> PieceData;
     public MemoryBuffer1D<Vector2, Stride1D.Dense> PieceDimension;
-    public MemoryBuffer2D<int, Stride2D.DenseX> BoardData;
+    public MemoryBuffer2D<byte, Stride2D.DenseX> BoardData;
     public int BoardWidth;
     public int BoardHeight;
 
@@ -34,14 +34,14 @@ public class HostPuzzleData : IDisposable
             .SelectMany(p => p.Variations)
             .Select(x => new
             {
-                data = new Span2D<int>(x.Data, x.Height, x.Width).ToArray(),
+                data = new Span2D<byte>(x.Data, x.Height, x.Width).ToArray(),
                 dim = Vector2.Create(x.Height, x.Width)
             })
             .ToList();
         
         var pieceVariations = NumPieces * puzzle.NumVariations;
 
-        var pieceBuffer = new int[pieceVariations, 5, 5];
+        var pieceBuffer = new byte[pieceVariations, 5, 5];
         pieceBuffer.AsSpan().Clear();
         var idx = Enumerable.Range(0, pieceVariations)
             .SelectMany(i => Enumerable.Range(0, 5)
@@ -82,7 +82,7 @@ public struct DevicePuzzleData
     public int NumPieces;
     public int BoardWidth;
     public int BoardHeight;
-    public ArrayView3D<int, Stride3D.DenseXY> PieceData;
+    public ArrayView3D<byte, Stride3D.DenseXY> PieceData;
     public ArrayView1D<Vector2, Stride1D.Dense> PieceDimension;
-    public ArrayView2D<int, Stride2D.DenseX> BoardData;
+    public ArrayView2D<byte, Stride2D.DenseX> BoardData;
 }

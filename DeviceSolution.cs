@@ -5,10 +5,10 @@ namespace Puzzle.ML;
 
 public struct HostSolution(Accelerator accelerator, HostPuzzleData puzzleData) : IDisposable
 {
-    public MemoryBuffer1D<int, Stride1D.Dense> Found = accelerator.Allocate1D<int>(1);
-    public MemoryBuffer1D<int, Stride1D.Dense> Shuffle = accelerator.Allocate1D<int>(puzzleData.NumPieces);
-    public MemoryBuffer1D<int, Stride1D.Dense> Variation = accelerator.Allocate1D<int>(puzzleData.NumPieces);
-    public MemoryBuffer2D<int, Stride2D.DenseX> Coords = accelerator.Allocate2DDenseX<int>((puzzleData.NumPieces, 2));
+    public MemoryBuffer1D<byte, Stride1D.Dense> Found = accelerator.Allocate1D<byte>(1);
+    public MemoryBuffer1D<byte, Stride1D.Dense> Shuffle = accelerator.Allocate1D<byte>(puzzleData.NumPieces);
+    public MemoryBuffer1D<byte, Stride1D.Dense> Variation = accelerator.Allocate1D<byte>(puzzleData.NumPieces);
+    public MemoryBuffer1D<byte, Stride1D.Dense> Coords = accelerator.Allocate1D<byte>(puzzleData.NumPieces * 2);
     public DeviceSolution ToDevice()
     {
         return new()
@@ -30,8 +30,8 @@ public struct HostSolution(Accelerator accelerator, HostPuzzleData puzzleData) :
 }
 public struct DeviceSolution
 {
-    public VariableView<int> Found;
-    public ArrayView1D<int, Stride1D.Dense> Shuffle;
-    public ArrayView1D<int, Stride1D.Dense> Variation;
-    public ArrayView2D<int, Stride2D.DenseX> Coords;
+    public VariableView<byte> Found;
+    public ArrayView1D<byte, Stride1D.Dense> Shuffle;
+    public ArrayView1D<byte, Stride1D.Dense> Variation;
+    public ArrayView1D<byte, Stride1D.Dense> Coords;
 }
