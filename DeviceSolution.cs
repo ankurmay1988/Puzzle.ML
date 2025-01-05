@@ -9,7 +9,7 @@ public struct HostSolution(Accelerator accelerator, HostPuzzleData puzzleData) :
     public MemoryBuffer1D<byte, Stride1D.Dense> Shuffle = accelerator.Allocate1D<byte>(puzzleData.NumPieces);
     public MemoryBuffer1D<byte, Stride1D.Dense> Variation = accelerator.Allocate1D<byte>(puzzleData.NumPieces);
     public MemoryBuffer1D<byte, Stride1D.Dense> Coords = accelerator.Allocate1D<byte>(puzzleData.NumPieces * 2);
-    public DeviceSolution ToDevice()
+    public DeviceSolution DeviceView()
     {
         return new()
         {

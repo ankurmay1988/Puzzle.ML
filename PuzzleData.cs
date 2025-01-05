@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using Numpy;
+using Python.Included;
+using Python.Runtime;
 
 namespace Puzzle.ML;
 
@@ -47,8 +49,12 @@ public struct PuzzleData
         Initialize();
     }
 
-    public void Initialize()
+    public async void Initialize()
     {
+        await Installer.SetupPython();
+        PythonEngine.Initialize();
+        PythonEngine.BeginAllowThreads();
+        using var py = Py.GIL();
         int[] monthIdx = [(dateOnly.Month - 1) / BoardWidth, (dateOnly.Month - 1) % BoardWidth];
         int[] dayIdx = [2 + ((dateOnly.Day - 1) / BoardWidth), (dateOnly.Day - 1) % BoardWidth];
 

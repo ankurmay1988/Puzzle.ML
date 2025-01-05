@@ -9,11 +9,15 @@ public struct HostPuzzleCases : IDisposable
     private readonly Accelerator accelerator;
     public MemoryBuffer2D<byte, Stride2D.DenseX> ShuffleCases;
     public MemoryBuffer2D<byte, Stride2D.DenseX> VariationCases;
+    private readonly int NumPieces;
+    private int NumVariationCases;
+    private int NumShuffleCases;
     public HostPuzzleCases(Accelerator accelerator, PuzzleData puzzle, byte[,]? shuffleCases = null, byte[,]? variationCases = null)
     {
         this.accelerator = accelerator;
         ShuffleCases = default!;
         VariationCases = default!;
+        NumPieces = puzzle.Pieces.Count;
         Initialize(puzzle, shuffleCases, variationCases);
     }
 
@@ -31,10 +35,12 @@ public struct HostPuzzleCases : IDisposable
             });
 
             ShuffleCases = accelerator.Allocate2DDenseX(arrShuffleCases);
+            NumShuffleCases = cases_Perm.Count;
         }
         else
         {
             ShuffleCases = accelerator.Allocate2DDenseX(shuffled);
+            NumShuffleCases = shuffled.GetLength(0);
         }
 
         if (variations == null)
@@ -49,18 +55,23 @@ public struct HostPuzzleCases : IDisposable
             });
 
             VariationCases = accelerator.Allocate2DDenseX(arrVariationCases);
+            NumVariationCases = variationCases.Count;
         }
         else
         {
             VariationCases = accelerator.Allocate2DDenseX(variations);
+            NumVariationCases = variations.GetLength(0);
         }
     }
 
-    public DevicePuzzleCases ToDevice() => new()
+    public DevicePuzzleCases DeviceView()
     {
-        ShuffleCases = ShuffleCases,
-        VariationCases = VariationCases
-    };
+        return new()
+        {
+            ShuffleCases = ShuffleCases.View,
+            VariationCases = VariationCases.View
+        };
+    }
 
     public void Dispose()
     {

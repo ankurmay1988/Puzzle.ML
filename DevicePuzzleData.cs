@@ -58,7 +58,7 @@ public class HostPuzzleData : IDisposable
         PieceDimension = accelerator.Allocate1D(dims);
     }
 
-    public DevicePuzzleData ToDevice()
+    public DevicePuzzleData DeviceView()
     {
         return new()
         {

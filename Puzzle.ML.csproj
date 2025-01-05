@@ -5,11 +5,12 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="ILGPU.Algorithms" Version="1.5.1" />
-	<PackageReference Include="ILGPU" Version="1.5.1" />
+	<PackageReference Include="ILGPU.Algorithms" Version="2.0.0-beta1-preview-20240905211340-c3af8f3" />
+	<PackageReference Include="ILGPU" Version="2.0.0-beta1-preview-20240905211340-c3af8f3" />
 	<PackageReference Include="Numpy" Version="3.11.1.34" />
 	<PackageReference Include="Combinatorics" Version="2.0.0" />
 	<PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
