@@ -1,12 +1,11 @@
-﻿using Combinatorics.Collections;
-using CommunityToolkit.HighPerformance;
+﻿using CommunityToolkit.HighPerformance;
 using ILGPU;
 using ILGPU.Runtime;
 using System.Numerics;
 
 namespace Puzzle.ML;
 
-public class HostPuzzleData : IDisposable
+public struct HostPuzzleData : IDisposable
 {
     public int NumPieces;
     public MemoryBuffer3D<byte, Stride3D.DenseXY> PieceData;
@@ -74,6 +73,8 @@ public class HostPuzzleData : IDisposable
     public void Dispose()
     {
         BoardData?.Dispose();
+        PieceData?.Dispose();
+        PieceDimension?.Dispose();
     }
 }
 

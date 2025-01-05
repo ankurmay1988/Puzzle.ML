@@ -7,6 +7,9 @@ namespace Puzzle.ML.Solver;
 
 internal static class PuzzleKernel
 {
+    internal readonly static int NumPieceVariations = 4;
+    internal readonly static int MaxPieceDimension = 5;
+
     internal static void __kernel(Index2D index, Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
     {
         if (solution.Found.Value == 1)
@@ -48,8 +51,8 @@ internal static class PuzzleKernel
         {
             var pieceIdx = pieceShuffleData[0, i];
             var pieceVariationIdx = pieceVariationData[0, i];
-            var variationIdx = (pieceIdx * 4) + pieceVariationIdx;
-            var piece = puzzle.PieceData.SubView((variationIdx, 0, 0), (1, 5, 5));
+            var variationIdx = (pieceIdx * NumPieceVariations) + pieceVariationIdx;
+            var piece = puzzle.PieceData.SubView((variationIdx, 0, 0), (1, MaxPieceDimension, MaxPieceDimension));
             var pieceDimension = puzzle.PieceDimension[variationIdx];
             var (success, placedX, placedY) = __placePiece(piece, pieceDimension, board);
             if (!success)
@@ -92,7 +95,7 @@ internal static class PuzzleKernel
         var boardshape = board.IntExtent;
         var shape = ((byte)dimensions.X, (byte)dimensions.Y);
         piece = piece.SubView((0, 0, 0), (1, (byte)dimensions.X, (byte)dimensions.Y));
-        var after_placement = new byte[5, 5].AsArrayView().SubView((0, 0), shape);
+        var after_placement = new byte[MaxPieceDimension, MaxPieceDimension].AsArrayView().SubView((0, 0), shape);
 
         for (byte i = 0; i < boardshape.X; i++)
             for (byte j = 0; j < boardshape.Y; j++)

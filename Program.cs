@@ -5,15 +5,10 @@ using System.Diagnostics;
 
 using (Context context = Context.Create(builder => builder.EnableAlgorithms().AllAccelerators()))
 {
-    //foreach (var d in context)
-    //{
-    //    Console.WriteLine(d);
-    //}
-
     //using var accelerator = context.CreateCPUAccelerator(0);
     using var accelerator = context.GetPreferredDevice(false).CreateAccelerator(context);
     Console.WriteLine(accelerator);
-    PuzzleData puzzleData = new("04Jan");
+    PuzzleData puzzleData = new("06Jan");
     using PuzzleSolver solver = new(accelerator, puzzleData);
     var (found, shuffle, variation, coords) = solver.StartSolver();
 
