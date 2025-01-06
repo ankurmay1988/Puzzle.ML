@@ -46,13 +46,14 @@ public struct PuzzleData
     {
         BoardData = PuzzleData.NewBoard;
         this.dateOnly = dateOnly;
-        Initialize();
     }
 
-    public async void Initialize()
+    public async Task Initialize()
     {
         await Installer.SetupPython();
         PythonEngine.Initialize();
+        PyModule.Import("numpy");
+        
         PythonEngine.BeginAllowThreads();
         using var py = Py.GIL();
         int[] monthIdx = [(dateOnly.Month - 1) / BoardWidth, (dateOnly.Month - 1) % BoardWidth];

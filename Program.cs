@@ -9,6 +9,7 @@ using (Context context = Context.Create(builder => builder.EnableAlgorithms().Al
     using var accelerator = context.GetPreferredDevice(false).CreateAccelerator(context);
     Console.WriteLine(accelerator);
     PuzzleData puzzleData = new("06Jan");
+    await puzzleData.Initialize();
     using PuzzleSolver solver = new(accelerator, puzzleData);
     var (found, shuffle, variation, coords) = solver.StartSolver();
 
