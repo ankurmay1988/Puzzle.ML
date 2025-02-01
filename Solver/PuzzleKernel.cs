@@ -13,7 +13,27 @@ internal static class PuzzleKernel
     internal readonly static int BoardWidth = 7;
     internal readonly static int BoardHeight = 7;
 
-    internal static void __kernel(Index2D index, Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
+    internal static void __kernel(Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
+    {
+        if (solution.Found.Value == 1)
+            return;
+
+        var xIdx = caseSubview.X + Grid.GlobalIndex.X;
+        var yIdx = caseSubview.Y + Grid.GlobalIndex.Y;
+        if (puzzleCases.ShuffleCases.IntExtent.X < xIdx
+            || puzzleCases.VariationCases.IntExtent.X < yIdx)
+            return;
+
+        var pieceShuffleData = puzzleCases.ShuffleCases
+            .SubView((xIdx, 0), (1, NumPieces));
+
+        var pieceVariationData = puzzleCases.VariationCases
+            .SubView((yIdx, 0), (1, NumPieces));
+
+        __find_solution(pieceShuffleData, pieceVariationData, puzzle, puzzleCases, solution);
+    }
+
+    internal static void __kernel_auto(Index2D index, Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
     {
         if (solution.Found.Value == 1)
             return;

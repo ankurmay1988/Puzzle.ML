@@ -4,6 +4,7 @@ using ILGPU.Algorithms;
 using ILGPU.IR.Types;
 using ILGPU.Runtime;
 using ILGPU.Util;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace Puzzle.ML.Solver;
@@ -28,9 +29,32 @@ internal class PuzzleSolver : IDisposable
         this.hostSolution = new HostSolution(accelerator, puzzleData);
     }
 
-    public (bool, byte[], byte[], Memory2D<byte>) StartSolver()
+    public (bool, byte[], byte[], Memory2D<byte>, TimeSpan) StartSolver()
     {
-        var kernel = accelerator.LoadAutoGroupedStreamKernel<Index2D, Index2D, DevicePuzzleData, DevicePuzzleCases, DeviceSolution>(PuzzleKernel.__kernel);
+        var kernel = accelerator.LoadStreamKernel<Index2D, DevicePuzzleData, DevicePuzzleCases, DeviceSolution>(PuzzleKernel.__kernel);
+        Index2D size = (puzzleCases.ShuffleCases.IntExtent.X, puzzleCases.VariationCases.IntExtent.X);
+
+        var grpSize = accelerator.EstimateGroupSize(kernel.GetKernel());
+        Index2D groupDim = (grpSize, 1);
+        int workSize = groupDim.Size;
+        var workRows = (size.X + workSize - 1) / workSize;
+        var workColumns = (size.Y + workSize - 1) / workSize;
+        Index2D gridDim = (workRows, workColumns);
+
+        var sw = Stopwatch.StartNew();
+        var config = new KernelConfig(gridDim, groupDim);
+        for (int i = 0; i < workRows; i++)
+            for (int j = 0; j < workColumns; j++)
+                kernel(config, (i * workSize, j * workSize), puzzleData.DeviceView(), puzzleCases.DeviceView(), hostSolution.DeviceView());
+
+        var result = SolutionIfFound();
+        sw.Stop();
+        return (result.Item1, result.Item2, result.Item3, result.Item4, sw.Elapsed);
+    }
+
+    public (bool, byte[], byte[], Memory2D<byte>, TimeSpan) StartSolver_Auto()
+    {
+        var kernel = accelerator.LoadAutoGroupedStreamKernel<Index2D, Index2D, DevicePuzzleData, DevicePuzzleCases, DeviceSolution>(PuzzleKernel.__kernel_auto);
         var size = (puzzleCases.ShuffleCases.IntExtent.X, puzzleCases.VariationCases.IntExtent.X);
 
         int workSize = accelerator.WarpSize * 256;
@@ -39,11 +63,14 @@ internal class PuzzleSolver : IDisposable
         var workRows = (size.Item1 + workSize - 1) / workSize;
         var workColumns = (size.Item2 + workSize - 1) / workSize;
 
+        var sw = Stopwatch.StartNew();
         for (int i = 0; i < workRows; i++)
             for (int j = 0; j < workColumns; j++)
                 kernel(gridDim, (i * workSize, j * workSize), puzzleData.DeviceView(), puzzleCases.DeviceView(), hostSolution.DeviceView());
 
-        return SolutionIfFound();
+        var result = SolutionIfFound();
+        sw.Stop();
+        return (result.Item1, result.Item2, result.Item3, result.Item4, sw.Elapsed);
     }
 
     private (bool, byte[], byte[], Memory2D<byte>) SolutionIfFound()

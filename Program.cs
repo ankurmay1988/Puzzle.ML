@@ -19,12 +19,12 @@ using (Context context = Context.Create(builder =>
     using var accelerator = context.GetPreferredDevice(false).CreateAccelerator(context);
     Console.WriteLine(accelerator);
     accelerator.Device.PrintInformation(Console.Out);
-    PuzzleData puzzleData = new("06Jan");
+    PuzzleData puzzleData = new("30Jan");
     await puzzleData.Initialize();
     using PuzzleSolver solver = new(accelerator, puzzleData);
-    var (found, shuffle, variation, coords) = solver.StartSolver();
+    var (found, shuffle, variation, coords, timeTaken) = solver.StartSolver();
 
-    Console.WriteLine($"Found: {found}");
+    Console.WriteLine($"Found: {found} in {timeTaken.TotalSeconds} seconds");
     if (found)
     {
         Console.WriteLine($"Shuffled: {shuffle.Aggregate("", (p, n) => $"{p} {n}")}");
