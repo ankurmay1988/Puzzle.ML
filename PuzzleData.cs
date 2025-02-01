@@ -52,6 +52,7 @@ public struct PuzzleData
     {
         await Installer.SetupPython();
         PythonEngine.Initialize();
+
         PythonEngine.BeginAllowThreads();
         using var py = Py.GIL();
         int[] monthIdx = [(dateOnly.Month - 1) / BoardWidth, (dateOnly.Month - 1) % BoardWidth];
