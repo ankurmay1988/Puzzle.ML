@@ -7,8 +7,11 @@ namespace Puzzle.ML.Solver;
 
 internal static class PuzzleKernel
 {
+    internal readonly static int NumPieces = 8;
     internal readonly static int NumPieceVariations = 4;
     internal readonly static int MaxPieceDimension = 5;
+    internal readonly static int BoardWidth = 7;
+    internal readonly static int BoardHeight = 7;
 
     internal static void __kernel(Index2D index, Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
     {
@@ -20,10 +23,10 @@ internal static class PuzzleKernel
             return;
 
         var pieceShuffleData = puzzleCases.ShuffleCases
-            .SubView((caseSubview.X + index.X, 0), (1, puzzle.NumPieces));
+            .SubView((caseSubview.X + index.X, 0), (1, NumPieces));
 
         var pieceVariationData = puzzleCases.VariationCases
-            .SubView((caseSubview.Y + index.Y, 0), (1, puzzle.NumPieces));
+            .SubView((caseSubview.Y + index.Y, 0), (1, NumPieces));
 
         __find_solution(pieceShuffleData, pieceVariationData, puzzle, puzzleCases, solution);
     }
@@ -38,14 +41,14 @@ internal static class PuzzleKernel
         if (solution.Found.Value == 1)
             return;
 
-        var board = LocalMemory.Allocate2D<byte, Stride2D.DenseX>((7, 7), Stride2D.DenseX.FromExtent((7, 7)));
+        var board = LocalMemory.Allocate2D<byte, Stride2D.DenseX>((BoardHeight, BoardWidth), Stride2D.DenseX.FromExtent((BoardHeight, BoardWidth)));
         for (int i = 0; i < puzzle.BoardData.BaseView.Length; i++)
         {
             var idx = puzzle.BoardData.Stride.ReconstructFromElementIndex(i);
             board[idx] = puzzle.BoardData[idx];
         }
 
-        var coords = LocalMemory.Allocate1D<byte, Stride1D.Dense>(16, new Stride1D.Dense());
+        var coords = LocalMemory.Allocate1D<byte, Stride1D.Dense>(NumPieces * 2, new Stride1D.Dense());
 
         for (int i = 0; i < puzzle.NumPieces; i++)
         {
@@ -100,14 +103,15 @@ internal static class PuzzleKernel
         for (byte i = 0; i < boardshape.X; i++)
             for (byte j = 0; j < boardshape.Y; j++)
             {
-                var isInside = __is_inside(board, (i, j), shape);
-                if (!isInside) continue;
+                if (!__is_inside(board, (i, j), shape)) continue;
                 var placement = board.SubView((i, j), shape);
                 //__print(placement);
                 //__print(piece);
-                for (int x = 0; x < placement.IntExtent.X; x++)
-                    for (int y = 0; y < placement.IntExtent.Y; y++)
+
+                for (int x = 0; x < shape.Item1; x++)
+                    for (int y = 0; y < shape.Item2; y++)
                         after_placement[x, y] = (byte)(placement[x, y] + piece[0, x, y]);
+
                 //__print(after_placement);
                 var success = __is_placement_valid(after_placement.BaseView);
                 if (success)

@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="traces\**" />
+    <EmbeddedResource Remove="traces\**" />
+    <None Remove="traces\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="*.cltracer" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="ILGPU.Algorithms" Version="2.0.0-beta1-preview-20240905211340-c3af8f3" />
 	<PackageReference Include="Numpy" Version="3.11.1.34" />
 	<PackageReference Include="Combinatorics" Version="2.0.0" />

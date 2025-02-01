@@ -19,12 +19,12 @@ internal class PuzzleSolver : IDisposable
     {
         this.accelerator = accelerator;
         this.puzzleData = new HostPuzzleData(accelerator, puzzle);
-        //this.puzzleCases = new HostPuzzleCases(
-        //    accelerator,
-        //    puzzle,
+        var puzzleCases = new PuzzleCases(puzzle);
+        puzzleCases.Generate();
+        //puzzleCases.Generate(
         //    new byte[,] { { 3, 6, 4, 0, 2, 1, 7, 5 } },
         //    new byte[,] { { 0, 0, 2, 3, 0, 3, 0, 2 } });
-        this.puzzleCases = new HostPuzzleCases(accelerator, puzzle);
+        this.puzzleCases = new HostPuzzleCases(accelerator, puzzleCases);
         this.hostSolution = new HostSolution(accelerator, puzzleData);
     }
 
@@ -33,7 +33,7 @@ internal class PuzzleSolver : IDisposable
         var kernel = accelerator.LoadAutoGroupedStreamKernel<Index2D, Index2D, DevicePuzzleData, DevicePuzzleCases, DeviceSolution>(PuzzleKernel.__kernel);
         var size = (puzzleCases.ShuffleCases.IntExtent.X, puzzleCases.VariationCases.IntExtent.X);
 
-        int workSize = 8096;
+        int workSize = accelerator.WarpSize * 256;
         var gridDim = (workSize, workSize);
 
         var workRows = (size.Item1 + workSize - 1) / workSize;

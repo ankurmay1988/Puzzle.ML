@@ -46,10 +46,9 @@ public struct PuzzleData
     {
         BoardData = PuzzleData.NewBoard;
         this.dateOnly = dateOnly;
-        Initialize();
     }
 
-    public async void Initialize()
+    public async Task Initialize()
     {
         await Installer.SetupPython();
         PythonEngine.Initialize();
