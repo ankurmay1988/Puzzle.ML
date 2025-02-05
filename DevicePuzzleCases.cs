@@ -8,6 +8,7 @@ public struct HostPuzzleCases : IDisposable
 {
     public MemoryBuffer2D<byte, Stride2D.DenseX> ShuffleCases;
     public MemoryBuffer2D<byte, Stride2D.DenseX> VariationCases;
+    
     public HostPuzzleCases(Accelerator accelerator, PuzzleCases puzzleCases)
     {
         ShuffleCases = default!;

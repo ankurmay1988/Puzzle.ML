@@ -1,6 +1,9 @@
 ﻿using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Helpers;
 using ILGPU;
+using ILGPU.Algorithms.Vectors;
 using ILGPU.Runtime;
+using ILGPU.Util;
 using System.Numerics;
 
 namespace Puzzle.ML;
@@ -28,6 +31,10 @@ public struct HostPuzzleData : IDisposable
     private void Initialize(Accelerator accelerator, PuzzleData puzzle)
     {
         BoardData = accelerator.Allocate2DDenseX(puzzle.BoardDataArray);
+        //VectorView<bool> a = new VectorView<bool>();
+        //UInt64x8 b = UInt64x8.FromScalar(1);
+        //BitHelper.ExtractRange;
+        //a.SliceVector(1);
 
         var pieceData = puzzle.Pieces
             .SelectMany(p => p.Variations)
@@ -55,6 +62,23 @@ public struct HostPuzzleData : IDisposable
 
         var dims = pieceData.Select(p => p.dim).ToArray();
         PieceDimension = accelerator.Allocate1D(dims);
+    }
+
+    private void ExtractBitVector<TVec, TElem>(
+        VectorView<TVec> vector,
+        int index,
+        VectorView<bool> dest)
+            where TVec : unmanaged, IVectorType<TVec, byte>
+    {
+        for (long i = 0; i < vector.NumVectors; i++)
+        {
+            var v = vector.SliceVector(i);
+            for (int j = 0; j < v.Dimension.X; j++)
+            {
+                var val = v[j].AsSpan();
+                dest[i, j] = BitHelper.HasFlag(val[0], index);
+            }
+        }
     }
 
     public DevicePuzzleData DeviceView()

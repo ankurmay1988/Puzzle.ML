@@ -16,15 +16,10 @@ internal class PuzzleSolver : IDisposable
     private readonly HostPuzzleCases puzzleCases;
     private readonly HostSolution hostSolution;
 
-    public PuzzleSolver(Accelerator accelerator, PuzzleData puzzle)
+    public PuzzleSolver(Accelerator accelerator, PuzzleData puzzle, PuzzleCases puzzleCases)
     {
         this.accelerator = accelerator;
         this.puzzleData = new HostPuzzleData(accelerator, puzzle);
-        var puzzleCases = new PuzzleCases(puzzle);
-        puzzleCases.Generate();
-        //puzzleCases.Generate(
-        //    new byte[,] { { 3, 6, 4, 0, 2, 1, 7, 5 } },
-        //    new byte[,] { { 0, 0, 2, 3, 0, 3, 0, 2 } });
         this.puzzleCases = new HostPuzzleCases(accelerator, puzzleCases);
         this.hostSolution = new HostSolution(accelerator, puzzleData);
     }

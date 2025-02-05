@@ -30,7 +30,7 @@ internal static class PuzzleKernel
         var pieceVariationData = puzzleCases.VariationCases
             .SubView((yIdx, 0), (1, NumPieces));
 
-        __find_solution(pieceShuffleData, pieceVariationData, puzzle, puzzleCases, solution);
+        __find_solution(pieceShuffleData, pieceVariationData, puzzle, solution);
     }
 
     internal static void __kernel_auto(Index2D index, Index2D caseSubview, DevicePuzzleData puzzle, DevicePuzzleCases puzzleCases, DeviceSolution solution)
@@ -48,14 +48,13 @@ internal static class PuzzleKernel
         var pieceVariationData = puzzleCases.VariationCases
             .SubView((caseSubview.Y + index.Y, 0), (1, NumPieces));
 
-        __find_solution(pieceShuffleData, pieceVariationData, puzzle, puzzleCases, solution);
+        __find_solution(pieceShuffleData, pieceVariationData, puzzle, solution);
     }
 
     internal static void __find_solution(
         ArrayView2D<byte, Stride2D.DenseX> pieceShuffleData,
         ArrayView2D<byte, Stride2D.DenseX> pieceVariationData,
         DevicePuzzleData puzzle,
-        DevicePuzzleCases puzzleCases,
         DeviceSolution solution)
     {
         if (solution.Found.Value == 1)
